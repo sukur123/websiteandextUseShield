@@ -48,7 +48,7 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    
+
     if (authError || !user) {
       throw new Error('Unauthorized')
     }
@@ -95,7 +95,8 @@ serve(async (req) => {
 
     // Validate analysis mode against subscription tier
     const tierLevelMap = { free: 0, starter: 1, pro: 2, pro_plus: 3, agency: 4 }
-    const modeTierMap = { flash: 0, standard: 1, deepdive: 3, neural: 4 }
+    // Allow Standard analysis for free users (uses gpt-4o-mini anyway, just restricted by scan limits)
+    const modeTierMap = { flash: 0, standard: 0, deepdive: 3, neural: 4 }
     const userTierLevel = tierLevelMap[subscription.tier] || 0
     const requiredTierLevel = modeTierMap[analysisMode] || 1
 
@@ -195,12 +196,12 @@ JSON structure:
     }
 
     const systemPrompt = systemPrompts[analysisMode] || systemPrompts.standard
-    
+
     // Allow Pro Plus and Agency users to override with custom prompt
-    const finalSystemPrompt = (customPrompt && userTierLevel >= 3) 
-      ? customPrompt 
+    const finalSystemPrompt = (customPrompt && userTierLevel >= 3)
+      ? customPrompt
       : systemPrompt
-    
+
     if (customPrompt && userTierLevel < 3) {
       console.log('[Edge Function] Custom prompt ignored - tier too low:', subscription.tier)
     }
