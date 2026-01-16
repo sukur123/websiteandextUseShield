@@ -4,7 +4,7 @@
  * No backend server required - uses Supabase directly
  */
 
-import { getCurrentUser } from './auth.js';
+import { getCurrentUser, getSupabase } from './auth.js';
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://fmptjjpwndojeywyacum.supabase.co';

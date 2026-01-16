@@ -50,18 +50,39 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
 
     if (authError || !user) {
-      throw new Error('Unauthorized')
+      console.error('[Edge Function] Auth failed:', authError);
+      throw new Error(`Unauthorized: ${authError?.message || 'Invalid token'}`)
     }
 
     // Check subscription and usage limits
-    const { data: subscription, error: subError } = await supabaseAdmin
+    let { data: subscription, error: subError } = await supabaseAdmin
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
       .single()
 
     if (subError || !subscription) {
-      throw new Error('No active subscription found')
+      console.log('[Edge Function] No subscription found, creating free tier for user:', user.id);
+
+      // Create free subscription
+      const { data: newSub, error: createError } = await supabaseAdmin
+        .from('subscriptions')
+        .insert({
+          user_id: user.id,
+          tier: 'free',
+          scans_limit: 3,
+          scans_used: 0,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('[Edge Function] Failed to create subscription:', createError);
+        throw new Error('Failed to initialize subscription');
+      }
+
+      subscription = newSub;
     }
 
     // Check if user has scans remaining
