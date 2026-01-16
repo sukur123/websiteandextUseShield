@@ -3,7 +3,7 @@
  * Handles profile updates, password changes, and sign out
  */
 
-import { getCurrentUser, updateProfile, changePassword, logout } from './src/auth.js';
+import { getCurrentUser, updateProfile, changePassword, logout, fetchProfile, updateProfileDB } from './src/auth.js';
 
 // DOM Elements
 const backLink = document.getElementById('backLink');
