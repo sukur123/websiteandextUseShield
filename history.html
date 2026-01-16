@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analysis History – UseShield</title>
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    body {
+      padding: var(--space-lg);
+      background: var(--color-bg-secondary);
+    }
+
+    .container {
+      max-width: var(--container-md);
+      margin: 0 auto;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .item-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .item-btn {
+      appearance: none;
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .item-btn:hover {
+      background: var(--color-bg-tertiary);
+      border-color: var(--color-primary);
+    }
+
+    .item-btn.delete {
+      color: var(--color-danger);
+    }
+
+    .item-btn.delete:hover {
+      background: var(--color-danger-bg);
+      border-color: var(--color-danger);
+    }
+
+    .clear-all-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      color: var(--color-danger);
+    }
+
+    .clear-all-btn:hover {
+      background: var(--color-danger-bg);
+      border-color: var(--color-danger);
+    }
+
+    .filter-select {
+      padding: var(--space-sm) var(--space-md);
+      padding-right: var(--space-xl);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: var(--color-bg);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: var(--color-bg);
+      border-radius: var(--radius-xl);
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: scale(0.95);
+      transition: transform var(--transition-normal);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: sticky;
+      top: 0;
+      background: var(--color-bg);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    .modal-title {
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      margin: 0;
+    }
+
+    .modal-url {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-top: var(--space-xs);
+      word-break: break-all;
+    }
+
+    .modal-close {
+      appearance: none;
+      border: none;
+      background: var(--color-bg-tertiary);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-lg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition-fast);
+      color: var(--color-text-muted);
+    }
+
+    .modal-close:hover {
+      background: var(--color-border);
+    }
+
+    .modal-body {
+      padding: var(--space-lg);
+    }
+
+    .modal-score {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+      padding: var(--space-md);
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-lg);
+    }
+
+    .modal-score-value {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: white;
+    }
+
+    .modal-score-value.critical {
+      background: var(--color-risk-critical);
+    }
+
+    .modal-score-value.high {
+      background: var(--color-risk-high);
+    }
+
+    .modal-score-value.medium {
+      background: var(--color-risk-medium);
+    }
+
+    .modal-score-value.low {
+      background: var(--color-risk-low);
+    }
+
+    .modal-summary {
+      background: rgba(30, 58, 95, 0.08);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .modal-summary h4 {
+      margin: 0 0 var(--space-sm) 0;
+      font-size: var(--text-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .modal-summary p {
+      margin: 0;
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    .modal-finding {
+      border-left: 3px solid var(--color-border);
+      padding: var(--space-sm) var(--space-md);
+      margin-bottom: var(--space-sm);
+      background: var(--color-bg-secondary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+
+    .modal-finding.critical {
+      border-color: var(--color-risk-critical);
+    }
+
+    .modal-finding.high {
+      border-color: var(--color-risk-high);
+    }
+
+    .modal-finding.medium {
+      border-color: var(--color-risk-medium);
+    }
+
+    .modal-finding.low {
+      border-color: var(--color-risk-low);
+    }
+
+    .modal-finding-title {
+      font-weight: var(--font-semibold);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-xs);
+    }
+
+    .modal-finding-summary {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      padding: var(--space-md);
+      border-top: 1px solid var(--color-border);
+      background: var(--color-bg-secondary);
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+    }
+
+    .modal-btn:hover {
+      background: var(--color-bg-tertiary);
+    }
+
+    .modal-btn.primary {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .modal-btn.primary:hover {
+      background: var(--color-primary-dark);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <a href="#" class="back-link" id="backLink">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to extension
+    </a>
+
+    <header class="page-header">
+      <h1 class="page-header-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Analysis History
+      </h1>
+      <button class="clear-all-btn" id="clearAllBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        Clear All
+      </button>
+    </header>
+
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search by URL or title..."
+        aria-label="Search history" />
+      <select class="filter-select" id="riskFilter" aria-label="Filter by risk level">
+        <option value="all">All Risk Levels</option>
+        <option value="critical">Critical Only</option>
+        <option value="high">High & Above</option>
+        <option value="medium">Medium & Above</option>
+        <option value="low">Low Only</option>
+      </select>
+      <select class="filter-select" id="sortSelect" aria-label="Sort order">
+        <option value="date-desc">Newest First</option>
+        <option value="date-asc">Oldest First</option>
+        <option value="score-desc">Highest Risk</option>
+        <option value="score-asc">Lowest Risk</option>
+        <option value="domain-asc">A-Z Domain</option>
+        <option value="domain-desc">Z-A Domain</option>
+      </select>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="totalAnalyses">0</div>
+        <div class="stat-label">Total Analyses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="avgRiskScore">0</div>
+        <div class="stat-label">Avg Risk Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="highRiskCount">0</div>
+        <div class="stat-label">High Risk Sites</div>
+      </div>
+    </div>
+
+    <div class="history-list" id="historyList">
+      <!-- Items populated by JS -->
+    </div>
+
+    <div class="pagination" id="pagination" hidden>
+      <button class="pagination-btn" id="prevPage" aria-label="Previous page">← Prev</button>
+      <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
+      <button class="pagination-btn" id="nextPage" aria-label="Next page">Next →</button>
+    </div>
+
+    <div class="empty-state" id="emptyState" hidden>
+      <div class="empty-state-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+      <div class="empty-state-title">No Analysis History</div>
+      <div class="empty-state-text">Start analyzing pages to build your history.</div>
+    </div>
+  </div>
+
+  <!-- Quick View Modal -->
+  <div class="modal-overlay" id="quickViewModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modalTitle">Analysis Details</h3>
+          <div class="modal-url" id="modalUrl"></div>
+        </div>
+        <button class="modal-close" id="modalClose" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-score">
+          <div class="modal-score-value" id="modalScoreValue">0</div>
+          <div class="modal-score-info">
+            <div class="modal-score-label" id="modalScoreLabel">Risk Level</div>
+            <div class="modal-score-date" id="modalDate">Analyzed on...</div>
+          </div>
+        </div>
+        <div class="modal-summary">
+          <h4>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            Summary
+          </h4>
+          <p id="modalSummary"></p>
+        </div>
+        <div class="modal-findings" id="modalFindings">
+          <h4>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            Findings
+          </h4>
+          <div id="modalFindingsList"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="modalOpenPage">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          Visit Page
+        </button>
+        <button class="modal-btn" id="modalReanalyze">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Re-analyze
+        </button>
+        <button class="modal-btn primary" id="modalExport">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/theme.js"></script>
+  <script src="src/ui-utils.js"></script>
+  <script src="history.js"></script>
+</body>
+
+</html>

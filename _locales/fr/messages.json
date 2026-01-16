@@ -1,0 +1,118 @@
+{
+  "extensionName": {
+    "message": "UseShield",
+    "description": "The name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Protégez-vous contre les frais cachés et les clauses risquées dans les Conditions d'Utilisation et Politiques de Confidentialité",
+    "description": "The description of the extension"
+  },
+  "analyzeButton": {
+    "message": "Analyser Cette Page",
+    "description": "Button to start analysis"
+  },
+  "analyzing": {
+    "message": "Analyse en cours...",
+    "description": "Text shown while analyzing"
+  },
+  "riskScore": {
+    "message": "Score de Risque",
+    "description": "Label for risk score"
+  },
+  "findings": {
+    "message": "Résultats",
+    "description": "Label for findings section"
+  },
+  "noFindings": {
+    "message": "Aucun piège financier détecté ! Cette page semble sûre.",
+    "description": "Message when no issues found"
+  },
+  "error": {
+    "message": "Erreur",
+    "description": "Error label"
+  },
+  "retry": {
+    "message": "Réessayer",
+    "description": "Retry button text"
+  },
+  "settings": {
+    "message": "Paramètres",
+    "description": "Settings button text"
+  },
+  "history": {
+    "message": "Historique",
+    "description": "History button text"
+  },
+  "upgrade": {
+    "message": "Améliorer",
+    "description": "Upgrade button text"
+  },
+  "scansRemaining": {
+    "message": "Analyses restantes",
+    "description": "Label for remaining scans"
+  },
+  "exportPdf": {
+    "message": "Exporter en PDF",
+    "description": "Export to PDF button"
+  },
+  "emailReport": {
+    "message": "Envoyer par Email",
+    "description": "Email report button"
+  },
+  "offlineMode": {
+    "message": "Mode Hors Ligne",
+    "description": "Offline mode indicator"
+  },
+  "severityHigh": {
+    "message": "Élevé",
+    "description": "High severity label"
+  },
+  "severityMedium": {
+    "message": "Moyen",
+    "description": "Medium severity label"
+  },
+  "severityLow": {
+    "message": "Faible",
+    "description": "Low severity label"
+  },
+  "freeTier": {
+    "message": "Gratuit",
+    "description": "Free tier name"
+  },
+  "starterTier": {
+    "message": "Débutant",
+    "description": "Starter tier name"
+  },
+  "proTier": {
+    "message": "Pro",
+    "description": "Pro tier name"
+  },
+  "proPlusTier": {
+    "message": "Pro Plus",
+    "description": "Pro Plus tier name"
+  },
+  "agencyTier": {
+    "message": "Agence",
+    "description": "Agency tier name"
+  },
+  "contextMenuAnalyze": {
+    "message": "Analyser avec Money Trap Analyzer",
+    "description": "Context menu item text"
+  },
+  "notificationTitle": {
+    "message": "Analyse Terminée",
+    "description": "Notification title"
+  },
+  "limitReached": {
+    "message": "Vous avez atteint votre limite d'analyses. Passez à un plan supérieur pour plus d'analyses.",
+    "description": "Limit reached message"
+  },
+  "networkError": {
+    "message": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "description": "Network error message"
+  },
+  "analysisSaved": {
+    "message": "Analyse sauvegardée pour consultation hors ligne",
+    "description": "Offline save confirmation"
+  }
+}

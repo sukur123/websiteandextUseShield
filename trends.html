@@ -1,0 +1,385 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Risk Score Trends – UseShield</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: var(--font-family);
+        margin: 0;
+        padding: var(--space-xl);
+        background: var(--color-bg);
+        color: var(--color-text);
+      }
+      .container { max-width: 900px; margin: 0 auto; }
+      
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-xl);
+      }
+      h1 { font-size: var(--text-2xl); margin: 0; display: flex; align-items: center; gap: var(--space-sm); }
+      
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+        color: var(--color-primary);
+        text-decoration: none;
+        font-size: var(--text-sm);
+        margin-bottom: var(--space-lg);
+        transition: var(--transition-fast);
+      }
+      .back-link:hover { opacity: 0.8; }
+      
+      .site-selector {
+        margin-bottom: var(--space-xl);
+      }
+      .site-select {
+        width: 100%;
+        padding: var(--space-md) var(--space-lg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+        background: var(--color-bg-secondary);
+        cursor: pointer;
+        color: var(--color-text);
+      }
+      .site-select:focus { outline: none; border-color: var(--color-primary); }
+      
+      .trend-card {
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-xl);
+        padding: var(--space-xl);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: var(--space-xl);
+      }
+      
+      .trend-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-lg);
+      }
+      .trend-title {
+        font-size: var(--text-lg);
+        font-weight: 600;
+      }
+      .trend-badge {
+        padding: var(--space-xs) var(--space-md);
+        border-radius: var(--radius-full);
+        font-size: var(--text-xs);
+        font-weight: 600;
+      }
+      .trend-badge.improved { background: var(--color-success-bg); color: var(--color-success); }
+      .trend-badge.worsened { background: var(--color-danger-bg); color: var(--color-danger); }
+      .trend-badge.stable { background: var(--color-bg); color: var(--color-text-muted); }
+      .trend-badge.new { background: var(--color-info-bg); color: var(--color-info); }
+      
+      .chart-container {
+        height: 250px;
+        position: relative;
+        margin: var(--space-lg) 0;
+      }
+      
+      .chart-canvas {
+        width: 100%;
+        height: 100%;
+      }
+      
+      /* Simple CSS chart */
+      .simple-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        height: 200px;
+        padding: var(--space-lg) 0;
+        border-bottom: 2px solid var(--color-border);
+        gap: var(--space-sm);
+      }
+      
+      .chart-bar-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+      
+      .chart-bar {
+        width: 100%;
+        max-width: 40px;
+        border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        transition: height var(--transition-base);
+        position: relative;
+      }
+      .chart-bar.low { background: linear-gradient(180deg, var(--color-success), #2ecc71); }
+      .chart-bar.medium { background: linear-gradient(180deg, var(--color-warning), #f1c40f); }
+      .chart-bar.high { background: linear-gradient(180deg, #e67e22, #d35400); }
+      .chart-bar.critical { background: linear-gradient(180deg, var(--color-danger), #c0392b); }
+      
+      .chart-bar-label {
+        font-size: var(--text-xs);
+        color: var(--color-text-muted);
+        text-align: center;
+        white-space: nowrap;
+      }
+      .chart-bar-value {
+        font-size: var(--text-xs);
+        font-weight: 600;
+        color: var(--color-text);
+      }
+      
+      .trend-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-md);
+        margin-top: var(--space-lg);
+      }
+      
+      .trend-stat {
+        text-align: center;
+        padding: var(--space-md);
+        background: var(--color-bg);
+        border-radius: var(--radius-md);
+      }
+      .trend-stat-value {
+        font-size: var(--text-2xl);
+        font-weight: 700;
+        color: var(--color-primary);
+      }
+      .trend-stat-value.up { color: var(--color-danger); }
+      .trend-stat-value.down { color: var(--color-success); }
+      .trend-stat-label {
+        font-size: var(--text-xs);
+        color: var(--color-text-muted);
+        margin-top: var(--space-xs);
+      }
+      
+      .history-timeline {
+        margin-top: var(--space-xl);
+      }
+      .timeline-title {
+        font-size: var(--text-base);
+        font-weight: 600;
+        margin-bottom: var(--space-md);
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+      
+      .timeline-item {
+        display: flex;
+        gap: var(--space-md);
+        padding: var(--space-md) 0;
+        border-bottom: 1px solid var(--color-border);
+      }
+      .timeline-item:last-child { border-bottom: none; }
+      
+      .timeline-date {
+        font-size: var(--text-xs);
+        color: var(--color-text-muted);
+        width: 100px;
+        flex-shrink: 0;
+      }
+      
+      .timeline-score {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: var(--text-sm);
+        color: #fff;
+        flex-shrink: 0;
+      }
+      .timeline-score.low { background: var(--color-success); }
+      .timeline-score.medium { background: var(--color-warning); }
+      .timeline-score.high { background: #e67e22; }
+      .timeline-score.critical { background: var(--color-danger); }
+      
+      .timeline-change {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+      .timeline-arrow {
+        font-size: var(--text-base);
+      }
+      .timeline-arrow.up { color: var(--color-danger); }
+      .timeline-arrow.down { color: var(--color-success); }
+      .timeline-arrow.same { color: var(--color-text-muted); }
+      
+      .timeline-diff {
+        font-size: var(--text-xs);
+        font-weight: 600;
+      }
+      .timeline-diff.up { color: var(--color-danger); }
+      .timeline-diff.down { color: var(--color-success); }
+      
+      .empty-state {
+        text-align: center;
+        padding: 60px var(--space-lg);
+        color: var(--color-text-muted);
+      }
+      .empty-state-icon { margin-bottom: var(--space-md); color: var(--color-primary); }
+      .empty-state-title { font-size: var(--text-lg); font-weight: 600; color: var(--color-text); }
+      .empty-state-text { font-size: var(--text-sm); margin-top: var(--space-sm); }
+      
+      .insights-section {
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-xl);
+        padding: var(--space-xl);
+        box-shadow: var(--shadow-sm);
+      }
+      .insights-title {
+        font-size: var(--text-lg);
+        font-weight: 600;
+        margin-bottom: var(--space-md);
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+      .insight-item {
+        display: flex;
+        gap: var(--space-md);
+        padding: var(--space-md);
+        background: var(--color-bg);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-md);
+      }
+      .insight-item:last-child { margin-bottom: 0; }
+      .insight-icon { color: var(--color-primary); }
+      .insight-text { font-size: var(--text-sm); color: var(--color-text); }
+      
+      /* Dark mode */
+      @media (prefers-color-scheme: dark) {
+        body { background: var(--color-bg-dark); color: var(--color-text-dark); }
+        .trend-card, .insights-section { background: var(--color-bg-secondary-dark); }
+        .site-select { background: var(--color-bg-secondary-dark); color: var(--color-text-dark); border-color: var(--color-border-dark); }
+        .trend-stat { background: var(--color-bg-dark); }
+        .trend-stat-label { color: var(--color-text-muted-dark); }
+        .timeline-item { border-color: var(--color-border-dark); }
+        .timeline-date { color: var(--color-text-muted-dark); }
+        .insight-item { background: var(--color-bg-dark); }
+        .insight-text { color: var(--color-text-dark); }
+        .chart-bar-label { color: var(--color-text-muted-dark); }
+        .chart-bar-value { color: var(--color-text-dark); }
+        .simple-chart { border-color: var(--color-border-dark); }
+        .empty-state-title { color: var(--color-text-dark); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="#" class="back-link" id="backLink">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to extension
+      </a>
+      
+      <header>
+        <h1>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          Risk Score Trends
+        </h1>
+      </header>
+      
+      <div class="site-selector">
+        <select class="site-select" id="siteSelect">
+          <option value="">Select a site to view trends...</option>
+        </select>
+      </div>
+      
+      <div id="trendContent" hidden>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-title" id="siteName">example.com</div>
+            <span class="trend-badge stable" id="trendBadge">Stable</span>
+          </div>
+          
+          <div class="chart-container">
+            <div class="simple-chart" id="trendChart">
+              <!-- Chart bars populated by JS -->
+            </div>
+          </div>
+          
+          <div class="trend-stats">
+            <div class="trend-stat">
+              <div class="trend-stat-value" id="currentScore">0</div>
+              <div class="trend-stat-label">Current Score</div>
+            </div>
+            <div class="trend-stat">
+              <div class="trend-stat-value" id="avgScore">0</div>
+              <div class="trend-stat-label">Average Score</div>
+            </div>
+            <div class="trend-stat">
+              <div class="trend-stat-value" id="changeAmount">0</div>
+              <div class="trend-stat-label">Change (30d)</div>
+            </div>
+            <div class="trend-stat">
+              <div class="trend-stat-value" id="analysisCount">0</div>
+              <div class="trend-stat-label">Analyses</div>
+            </div>
+          </div>
+          
+          <div class="history-timeline">
+            <div class="timeline-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Analysis History
+            </div>
+            <div id="timelineList">
+              <!-- Timeline items populated by JS -->
+            </div>
+          </div>
+        </div>
+        
+        <div class="insights-section" id="insightsSection">
+          <div class="insights-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Insights
+          </div>
+          <div id="insightsList">
+            <!-- Insights populated by JS -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="empty-state-title">No Sites with Multiple Analyses</div>
+        <div class="empty-state-text">Analyze the same site multiple times to track how their terms change over time.</div>
+      </div>
+    </div>
+    
+    <script src="trends.js"></script>
+  <script src="src/theme.js"></script>
+</body>
+</html>

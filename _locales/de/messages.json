@@ -1,0 +1,118 @@
+{
+  "extensionName": {
+    "message": "UseShield",
+    "description": "The name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Schützen Sie sich vor versteckten Gebühren und riskanten Klauseln in Nutzungsbedingungen und Datenschutzrichtlinien",
+    "description": "The description of the extension"
+  },
+  "analyzeButton": {
+    "message": "Diese Seite Analysieren",
+    "description": "Button to start analysis"
+  },
+  "analyzing": {
+    "message": "Analysiere...",
+    "description": "Text shown while analyzing"
+  },
+  "riskScore": {
+    "message": "Risiko-Bewertung",
+    "description": "Label for risk score"
+  },
+  "findings": {
+    "message": "Ergebnisse",
+    "description": "Label for findings section"
+  },
+  "noFindings": {
+    "message": "Keine Geldfallen erkannt! Diese Seite sieht sauber aus.",
+    "description": "Message when no issues found"
+  },
+  "error": {
+    "message": "Fehler",
+    "description": "Error label"
+  },
+  "retry": {
+    "message": "Erneut Versuchen",
+    "description": "Retry button text"
+  },
+  "settings": {
+    "message": "Einstellungen",
+    "description": "Settings button text"
+  },
+  "history": {
+    "message": "Verlauf",
+    "description": "History button text"
+  },
+  "upgrade": {
+    "message": "Upgraden",
+    "description": "Upgrade button text"
+  },
+  "scansRemaining": {
+    "message": "Verbleibende Scans",
+    "description": "Label for remaining scans"
+  },
+  "exportPdf": {
+    "message": "PDF Exportieren",
+    "description": "Export to PDF button"
+  },
+  "emailReport": {
+    "message": "Per E-Mail Senden",
+    "description": "Email report button"
+  },
+  "offlineMode": {
+    "message": "Offline-Modus",
+    "description": "Offline mode indicator"
+  },
+  "severityHigh": {
+    "message": "Hoch",
+    "description": "High severity label"
+  },
+  "severityMedium": {
+    "message": "Mittel",
+    "description": "Medium severity label"
+  },
+  "severityLow": {
+    "message": "Niedrig",
+    "description": "Low severity label"
+  },
+  "freeTier": {
+    "message": "Kostenlos",
+    "description": "Free tier name"
+  },
+  "starterTier": {
+    "message": "Starter",
+    "description": "Starter tier name"
+  },
+  "proTier": {
+    "message": "Pro",
+    "description": "Pro tier name"
+  },
+  "proPlusTier": {
+    "message": "Pro Plus",
+    "description": "Pro Plus tier name"
+  },
+  "agencyTier": {
+    "message": "Agentur",
+    "description": "Agency tier name"
+  },
+  "contextMenuAnalyze": {
+    "message": "Mit Money Trap Analyzer analysieren",
+    "description": "Context menu item text"
+  },
+  "notificationTitle": {
+    "message": "Analyse Abgeschlossen",
+    "description": "Notification title"
+  },
+  "limitReached": {
+    "message": "Sie haben Ihr Scan-Limit erreicht. Upgraden Sie für mehr Scans.",
+    "description": "Limit reached message"
+  },
+  "networkError": {
+    "message": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "description": "Network error message"
+  },
+  "analysisSaved": {
+    "message": "Analyse für Offline-Ansicht gespeichert",
+    "description": "Offline save confirmation"
+  }
+}

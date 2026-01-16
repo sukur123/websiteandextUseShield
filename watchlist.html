@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Watchlist - UseShield</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      body { 
+        padding: var(--space-lg); 
+        background: var(--color-bg-secondary);
+      }
+      .container { 
+        max-width: var(--container-md); 
+        margin: 0 auto; 
+      }
+      
+      .back-link { 
+        display: inline-flex; 
+        align-items: center;
+        gap: var(--space-xs);
+        margin-bottom: var(--space-md); 
+        color: var(--color-primary); 
+        text-decoration: none; 
+        font-size: var(--text-sm);
+        transition: color var(--transition-fast);
+      }
+      .back-link:hover { 
+        text-decoration: underline; 
+        color: var(--color-primary-dark);
+      }
+      
+      .page-header {
+        margin-bottom: var(--space-lg);
+      }
+      
+      h1 { 
+        font-size: var(--text-2xl); 
+        margin: 0 0 var(--space-sm); 
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+      
+      .sub { 
+        color: var(--color-text-muted); 
+        margin: 0; 
+        font-size: var(--text-base);
+      }
+      
+      .controls { 
+        display: flex; 
+        gap: var(--space-md); 
+        margin-bottom: var(--space-lg); 
+      }
+      
+      .filter-select {
+        padding: var(--space-sm) var(--space-md);
+        padding-right: var(--space-xl);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+        background: var(--color-bg);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+      }
+      .filter-select:focus { 
+        outline: none; 
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+      }
+      
+      .watchlist { 
+        display: grid; 
+        gap: var(--space-md); 
+      }
+      
+      .item { 
+        background: var(--color-bg);
+        border: 1px solid transparent; 
+        border-radius: var(--radius-lg); 
+        padding: var(--space-md); 
+        transition: all var(--transition-fast);
+        box-shadow: var(--shadow-sm);
+      }
+      .item:hover { 
+        border-color: var(--color-primary);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+      }
+      
+      .item-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-start; 
+        margin-bottom: var(--space-sm); 
+      }
+      .item-title { 
+        font-weight: 600; 
+        font-size: var(--text-base);
+        color: var(--color-text);
+      }
+      .item-domain { 
+        font-size: var(--text-sm); 
+        color: var(--color-text-muted); 
+      }
+      .item-meta { 
+        font-size: var(--text-sm); 
+        color: var(--color-text-muted); 
+        margin: var(--space-sm) 0; 
+      }
+      
+      .item-score { 
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+        padding: var(--space-xs) var(--space-sm); 
+        border-radius: var(--radius-full); 
+        font-size: var(--text-xs); 
+        font-weight: 600; 
+      }
+      .score-low { background: var(--color-success-bg); color: var(--color-success); }
+      .score-medium { background: var(--color-warning-bg); color: var(--color-warning); }
+      .score-high { background: rgba(234, 88, 12, 0.1); color: #ea580c; }
+      .score-critical { background: var(--color-danger-bg); color: var(--color-danger); }
+      
+      .changes-badge { 
+        background: var(--color-danger); 
+        color: white; 
+        font-size: var(--text-xs); 
+        padding: 2px var(--space-xs); 
+        border-radius: var(--radius-sm); 
+        margin-left: var(--space-sm); 
+      }
+      
+      .item-actions { 
+        display: flex; 
+        gap: var(--space-sm); 
+        margin-top: var(--space-md); 
+      }
+      .btn { 
+        appearance: none; 
+        border: 1px solid var(--color-border); 
+        background: var(--color-bg); 
+        border-radius: var(--radius-md); 
+        padding: var(--space-sm) var(--space-md); 
+        font-size: var(--text-sm); 
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+      .btn:hover { 
+        background: var(--color-bg-tertiary); 
+        border-color: var(--color-primary);
+      }
+      .btn-danger { 
+        border-color: var(--color-danger); 
+        color: var(--color-danger); 
+      }
+      .btn-danger:hover { 
+        background: var(--color-danger-bg); 
+      }
+      
+      .empty { 
+        text-align: center; 
+        color: var(--color-text-muted); 
+        padding: var(--space-3xl); 
+        background: var(--color-bg); 
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+      }
+      .empty-icon {
+        margin-bottom: var(--space-md);
+        opacity: 0.6;
+      }
+      .empty p {
+        margin: var(--space-sm) 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="#" class="back-link" id="backLink">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to extension
+      </a>
+      
+      <div class="page-header">
+        <h1>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          Watchlist
+        </h1>
+        <p class="sub">Track Terms/Privacy pages and get notified when they change.</p>
+      </div>
+      
+      <div class="controls">
+        <select class="filter-select" id="sortSelect" aria-label="Sort order">
+          <option value="added-desc">Recently Added</option>
+          <option value="added-asc">Oldest First</option>
+          <option value="score-desc">Highest Risk</option>
+          <option value="score-asc">Lowest Risk</option>
+          <option value="domain-asc">A-Z Domain</option>
+          <option value="changes">Has Changes</option>
+        </select>
+      </div>
+      
+      <div id="watchlist" class="watchlist"></div>
+      <div id="empty" class="empty" hidden>
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </div>
+        <p><strong>No pages in your watchlist yet.</strong></p>
+        <p>Analyze a page and click "Add to Watchlist" to start tracking.</p>
+      </div>
+    </div>
+
+    <script src="src/ui-utils.js"></script>
+    <script src="watchlist.js"></script>
+  <script src="src/theme.js"></script>
+</body>
+</html>

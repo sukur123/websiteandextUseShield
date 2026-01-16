@@ -1,0 +1,601 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome - UseShield</title>
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--gradient-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
+    }
+
+    .onboarding-container {
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      max-width: 500px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      padding: 40px;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .slide-icon {
+      margin-bottom: var(--space-xl);
+      color: var(--color-primary);
+    }
+
+    .slide-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-md);
+    }
+
+    .slide-text {
+      font-size: var(--text-base);
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      margin-bottom: var(--space-2xl);
+    }
+
+    .feature-list {
+      text-align: left;
+      margin: var(--space-xl) 0;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .feature-item:last-child {
+      border-bottom: none;
+    }
+
+    .feature-icon {
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      font-size: var(--text-sm);
+      color: var(--color-text);
+    }
+
+    .input-group {
+      margin: var(--space-xl) 0;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: var(--space-md) var(--space-lg);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      transition: border-color var(--transition-fast);
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .input-hint {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-top: var(--space-sm);
+    }
+
+    .input-hint a {
+      color: var(--color-primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-md) var(--space-2xl);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--color-bg);
+      color: var(--color-text);
+      margin-right: var(--space-md);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-border);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: var(--space-lg);
+      background: var(--color-bg);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: var(--radius-full);
+      background: var(--color-border);
+      transition: var(--transition-fast);
+    }
+
+    .dot.active {
+      background: var(--color-primary);
+      width: 24px;
+      border-radius: 5px;
+    }
+
+    .dot.completed {
+      background: var(--color-success);
+    }
+
+    .skip-link {
+      display: block;
+      margin-top: var(--space-lg);
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .skip-link:hover {
+      color: var(--color-text);
+      text-decoration: underline;
+    }
+
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      margin: var(--space-md) 0;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      text-align: left;
+    }
+
+    .checkbox-option:hover {
+      border-color: var(--color-primary);
+      background: var(--color-bg);
+    }
+
+    .checkbox-option.selected {
+      border-color: var(--color-primary);
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .checkbox-option input {
+      display: none;
+    }
+
+    .checkbox-icon {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-fast);
+      color: transparent;
+    }
+
+    .checkbox-option.selected .checkbox-icon {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+
+    .checkbox-label {
+      flex: 1;
+    }
+
+    .checkbox-title {
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .checkbox-desc {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-top: var(--space-xs);
+    }
+
+    .success-animation {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--space-xl);
+      background: var(--color-success);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      animation: scaleIn 0.3s ease;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+
+      to {
+        transform: scale(1);
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .onboarding-container {
+        background: var(--color-bg-secondary-dark);
+      }
+
+      .progress-dots {
+        background: var(--color-bg-dark);
+      }
+
+      .input-group input {
+        background: var(--color-bg-dark);
+        color: var(--color-text-dark);
+        border-color: var(--color-border-dark);
+      }
+
+      .slide-title {
+        color: var(--color-text-dark);
+      }
+
+      .slide-text {
+        color: var(--color-text-muted-dark);
+      }
+
+      .feature-text {
+        color: var(--color-text-dark);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="onboarding-container">
+    <!-- Slide 1: Welcome -->
+    <div class="slide active" id="slide1">
+      <div class="slide-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+      </div>
+      <h1 class="slide-title">Welcome to UseShield</h1>
+      <p class="slide-text">
+        Protect yourself from hidden fees, auto-renewals, and unfair terms buried in the fine print.
+      </p>
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <span class="feature-text">Instantly analyze Terms of Service &amp; Privacy Policies</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </span>
+          <span class="feature-text">Get risk scores and find money traps</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </span>
+          <span class="feature-text">Track how companies change their terms over time</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="getStartedBtn">Get Started →</button>
+      <a href="#" class="skip-link" id="skipSetupLink">Skip setup</a>
+    </div>
+
+    <!-- Slide 2: Account Connection -->
+    <div class="slide" id="slide2">
+      <div class="slide-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <h1 class="slide-title">Create Your Account</h1>
+      <p class="slide-text">
+        Get 3 free scans per week to analyze any Terms of Service or Privacy Policy.
+      </p>
+      <div class="feature-list" style="margin-bottom: var(--space-xl);">
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span class="feature-text">No credit card required</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span class="feature-text">Upgrade anytime for more scans</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span class="feature-text">Sync across all your devices</span>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-secondary" id="backBtn2">← Back</button>
+        <button class="btn btn-primary" id="createAccountBtn">Create Account →</button>
+      </div>
+      <a href="#" class="skip-link" id="signupLaterLink">I'll sign up later</a>
+    </div>
+
+    <!-- Slide 3: Preferences -->
+    <div class="slide" id="slide3">
+      <div class="slide-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
+        </svg>
+      </div>
+      <h1 class="slide-title">Customize Your Experience</h1>
+      <p class="slide-text">
+        Choose your preferences. You can change these anytime in settings.
+      </p>
+
+      <label class="checkbox-option">
+        <input type="checkbox" id="optAutoScan" />
+        <span class="checkbox-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <div class="checkbox-label">
+          <div class="checkbox-title">Auto-Scan Legal Pages</div>
+          <div class="checkbox-desc">Automatically analyze ToS pages when you visit them</div>
+        </div>
+      </label>
+
+      <label class="checkbox-option selected">
+        <input type="checkbox" id="optRedactPII" checked />
+        <span class="checkbox-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <div class="checkbox-label">
+          <div class="checkbox-title">Redact Personal Info</div>
+          <div class="checkbox-desc">Remove emails, phone numbers before sending to AI</div>
+        </div>
+      </label>
+
+      <label class="checkbox-option selected">
+        <input type="checkbox" id="optAlerts" checked />
+        <span class="checkbox-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <div class="checkbox-label">
+          <div class="checkbox-title">Watchlist Alerts</div>
+          <div class="checkbox-desc">Get notified when tracked sites change their terms</div>
+        </div>
+      </label>
+
+      <div style="margin-top: var(--space-xl);">
+        <button class="btn btn-secondary" id="backBtn3">← Back</button>
+        <button class="btn btn-primary" id="continueBtn3">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Slide 4: Quick Tour -->
+    <div class="slide" id="slide4">
+      <div class="slide-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <circle cx="12" cy="12" r="6"></circle>
+          <circle cx="12" cy="12" r="2"></circle>
+        </svg>
+      </div>
+      <h1 class="slide-title">How to Use</h1>
+      <p class="slide-text">
+        Analyzing a page takes just one click!
+      </p>
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </span>
+          <span class="feature-text">Visit any Terms of Service or Privacy Policy page</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+            </svg>
+          </span>
+          <span class="feature-text">Click the shield icon or press <kbd
+              style="background:var(--color-bg);padding:2px 6px;border-radius:4px;font-size:var(--text-xs);">Ctrl+Shift+A</kbd></span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </span>
+          <span class="feature-text">Get instant risk score and actionable findings</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </span>
+          <span class="feature-text">Export, compare, or add to watchlist</span>
+        </div>
+      </div>
+      <div style="margin-top: var(--space-xl);">
+        <button class="btn btn-secondary" id="backBtn4">← Back</button>
+        <button class="btn btn-primary" id="almostDoneBtn">Almost Done →</button>
+      </div>
+    </div>
+
+    <!-- Slide 5: Complete -->
+    <div class="slide" id="slide5">
+      <div class="success-animation">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+          aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1 class="slide-title">You're All Set!</h1>
+      <p class="slide-text">
+        You have <strong>3 free scans per week</strong> to try out.<br>
+        Upgrade anytime for more scans and features.
+      </p>
+      <button class="btn btn-primary" id="startAnalyzingBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Start Analyzing
+      </button>
+      <a href="subscription.html" class="skip-link" style="color: var(--color-primary);">View upgrade options</a>
+    </div>
+
+    <!-- Progress Dots -->
+    <div class="progress-dots">
+      <div class="dot active" data-slide="1"></div>
+      <div class="dot" data-slide="2"></div>
+      <div class="dot" data-slide="3"></div>
+      <div class="dot" data-slide="4"></div>
+      <div class="dot" data-slide="5"></div>
+    </div>
+  </div>
+
+  <script src="onboarding.js"></script>
+<script src="src/theme.js"></script>
+</body>
+
+</html>

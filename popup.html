@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UseShield</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+  <!-- Loading Overlay - Shows while fetching data from Supabase -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading UseShield...</p>
+    </div>
+  </div>
+
+  <!-- ==============================================
+         SPA VIEWS - Only one visible at a time
+         ============================================== -->
+
+  <!-- VIEW 1: LOGIN/REGISTER -->
+  <div id="authView" class="app-view" hidden>
+    <div class="auth-container">
+      <!-- Logo and Branding -->
+      <div class="auth-header">
+        <div class="auth-logo">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#3b82f6" stroke="#3b82f6"></path>
+            <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+          </svg>
+        </div>
+        <h1 class="auth-title">UseShield</h1>
+        <p class="auth-subtitle">Protect yourself from money traps</p>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm" class="auth-form">
+        <div class="auth-form-header">
+          <h2>Welcome back</h2>
+          <p>Sign in to continue to UseShield</p>
+        </div>
+
+        <div id="authError" class="auth-error" hidden></div>
+        <div id="authSuccess" class="auth-success" hidden></div>
+
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <input type="email" id="loginEmail" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label-row">
+            <label for="loginPassword">Password</label>
+            <button type="button" id="showForgotPasswordBtn" class="forgot-password-link">Forgot password?</button>
+          </div>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button id="loginBtn" class="auth-btn primary-btn">
+          <span class="btn-text">Sign In</span>
+          <svg class="btn-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" style="display:none">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+          </svg>
+        </button>
+
+        <div class="auth-divider">
+          <span>or continue with</span>
+        </div>
+
+        <button id="googleLoginBtn" class="auth-btn google-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4" />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853" />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05" />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335" />
+          </svg>
+          <span>Google</span>
+        </button>
+
+        <div class="auth-footer">
+          <span>Don't have an account?</span>
+          <button id="showRegisterBtn" class="auth-link-btn">Sign up</button>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" class="auth-form" hidden>
+        <div class="auth-form-header">
+          <h2>Create account</h2>
+          <p>Start protecting yourself today</p>
+        </div>
+
+        <div id="registerError" class="auth-error" hidden></div>
+
+        <div class="form-group">
+          <label for="registerName">Full Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <input type="text" id="registerName" placeholder="John Doe" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <input type="email" id="registerEmail" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <input type="password" id="registerPassword" placeholder="••••••••" required autocomplete="new-password"
+              minlength="8">
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+          <small class="form-hint">At least 8 characters</small>
+        </div>
+
+        <button id="registerBtn" class="auth-btn primary-btn">
+          <span class="btn-text">Create Account</span>
+          <svg class="btn-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" style="display:none">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+          </svg>
+        </button>
+
+        <div class="auth-divider">
+          <span>or continue with</span>
+        </div>
+
+        <button id="googleRegisterBtn" class="auth-btn google-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4" />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853" />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05" />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335" />
+          </svg>
+          <span>Google</span>
+        </button>
+
+        <div class="auth-footer">
+          <span>Already have an account?</span>
+          <button id="showLoginBtn" class="auth-link-btn">Sign in</button>
+        </div>
+      </div>
+
+      <!-- Forgot Password Form -->
+      <div id="forgotPasswordForm" class="auth-form" hidden>
+        <div class="auth-form-header">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5"
+            style="margin-bottom: 12px;">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <h2>Reset password</h2>
+          <p>We'll send you a link to reset your password</p>
+        </div>
+
+        <div id="forgotPasswordError" class="auth-error" hidden></div>
+        <div id="forgotPasswordSuccess" class="auth-success" hidden></div>
+
+        <div class="form-group">
+          <label for="forgotEmail">Email address</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <input type="email" id="forgotEmail" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <button id="sendResetBtn" class="auth-btn primary-btn">
+          <span class="btn-text">Send Reset Link</span>
+          <svg class="btn-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" style="display:none">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+          </svg>
+        </button>
+
+        <div class="auth-footer">
+          <span>Remember your password?</span>
+          <button id="backToLoginBtn" class="auth-link-btn">Back to sign in</button>
+        </div>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div class="auth-trust">
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Secure & Private</span>
+        </div>
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>10K+ Users</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: PAYWALL/SUBSCRIPTION -->
+  <div id="paywallView" class="app-view" hidden>
+    <div class="paywall-container">
+      <div class="paywall-header">
+        <button id="logoutBtn" class="btn btn-ghost btn-sm paywall-logout" type="button">Sign Out</button>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#2563EB" stroke="#2563EB"></path>
+          <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2"></path>
+        </svg>
+        <h1>Upgrade to Continue</h1>
+        <p>You've reached your free usage limit. Choose a plan to continue analyzing.</p>
+        <div class="current-usage">
+          <span id="usageText">0 / 3 analyses used this week</span>
+        </div>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-badge">Free</div>
+          <div class="pricing-price">$0</div>
+          <div class="pricing-period">Forever</div>
+          <ul class="pricing-features">
+            <li>✓ 3 analyses per week</li>
+            <li>✓ Basic risk assessment</li>
+            <li>✗ Export reports</li>
+            <li>✗ Watchlist monitoring</li>
+          </ul>
+          <button class="pricing-btn" id="currentPlanBtn" disabled>Current Plan</button>
+        </div>
+
+        <div class="pricing-card recommended">
+          <div class="pricing-badge recommended">Recommended</div>
+          <div class="pricing-price">$9.99</div>
+          <div class="pricing-period">/month</div>
+          <ul class="pricing-features">
+            <li>✓ 15 analyses per month</li>
+            <li>✓ Detailed risk reports</li>
+            <li>✓ Export as PDF</li>
+            <li>✓ Watchlist (10 sites)</li>
+          </ul>
+          <button class="pricing-btn primary" data-tier="starter">
+            Choose Starter
+          </button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-badge">Pro</div>
+          <div class="pricing-price">$29</div>
+          <div class="pricing-period">/month</div>
+          <ul class="pricing-features">
+            <li>✓ 80 analyses per month</li>
+            <li>✓ Advanced insights</li>
+            <li>✓ Compare services</li>
+            <li>✓ Watchlist (50 sites)</li>
+          </ul>
+          <button class="pricing-btn primary" data-tier="pro">
+            Choose Pro
+          </button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-badge">Agency</div>
+          <div class="pricing-price">$100</div>
+          <div class="pricing-period">/month</div>
+          <ul class="pricing-features">
+            <li>✓ 300 analyses per month</li>
+            <li>✓ API access</li>
+            <li>✓ Team collaboration</li>
+            <li>✓ Priority support</li>
+          </ul>
+          <button class="pricing-btn primary" data-tier="agency">
+            Choose Agency
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VIEW 3: MAIN APP -->
+  <div id="mainView" class="app-view" hidden>
+    <!-- Offline Indicator -->
+    <div id="offlineBanner" class="offline-banner hidden" role="alert">
+      <svg class="offline-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" aria-hidden="true">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+      <span>You're offline – cached analyses only</span>
+    </div>
+
+    <header>
+      <div class="header-row">
+        <h1>
+          <svg class="header-logo" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#2563EB" stroke="#2563EB"></path>
+            <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2"></path>
+          </svg>
+          UseShield
+        </h1>
+        <div class="header-actions" role="navigation" aria-label="Quick actions">
+          <button id="historyBtn" class="icon-btn" title="View analysis history" aria-label="View analysis history"
+            data-tooltip="View past analyses (Alt+H)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </button>
+          <button id="trendsBtn" class="icon-btn" title="View risk score trends" aria-label="View risk score trends"
+            data-tooltip="Track risk over time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </button>
+          <button id="watchlistBtn" class="icon-btn" title="Manage watchlist" aria-label="Manage watchlist"
+            data-tooltip="Monitor sites (Alt+W)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </button>
+          <button id="compareBtn" class="icon-btn" title="Compare services" aria-label="Compare services"
+            data-tooltip="Compare two services">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </button>
+          <button id="optionsBtn" class="icon-btn" title="Open settings" aria-label="Open settings"
+            data-tooltip="Settings (Alt+S)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+              </path>
+            </svg>
+          </button>
+          <button id="themeToggleBtn" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode"
+            data-tooltip="Toggle dark/light mode">
+            <svg class="theme-icon theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="theme-icon theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="sub">Analyze Terms/Privacy pages for billing & refund traps.</p>
+      <div id="usageInfo" class="usage-info"></div>
+    </header>
+
+    <!-- Analysis Mode Selector -->
+    <section class="analysis-mode-section">
+      <label class="mode-label">Analysis Depth</label>
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="flash" title="Fast surface-level scan">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <span>Flash</span>
+        </button>
+        <button class="mode-btn" data-mode="standard" title="Balanced comprehensive analysis">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
+          </svg>
+          <span>Standard</span>
+        </button>
+        <button class="mode-btn locked" data-mode="deepdive" data-required-tier="pro_plus" title="Requires Pro Plus">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+            </path>
+          </svg>
+          <span>Deep-Dive</span>
+          <svg class="lock-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </button>
+        <button class="mode-btn locked" data-mode="neural" data-required-tier="agency" title="Requires Agency">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+          <span>Neural</span>
+          <svg class="lock-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </button>
+      </div>
+      <button id="settingsToggle" class="settings-toggle-btn" title="Analysis Settings">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
+        </svg>
+      </button>
+    </section>
+
+    <!-- Settings Panel (Collapsible) -->
+    <section id="settingsPanel" class="settings-panel" hidden>
+      <div class="setting-group">
+        <div class="setting-row">
+          <label class="setting-label">
+            <input type="checkbox" id="redactPII" checked>
+            <span>Redact PII before analysis</span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <label class="setting-label">
+            <input type="checkbox" id="cacheResults" checked>
+            <span>Cache results (24hr)</span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <label class="setting-label">
+            <input type="checkbox" id="soundEnabled" checked>
+            <span>Sound alerts</span>
+          </label>
+        </div>
+      </div>
+      <div class="setting-group custom-prompt-group locked" id="customPromptGroup">
+        <label class="setting-label-header">
+          Custom System Prompt
+          <span class="pro-badge">Pro Plus+</span>
+        </label>
+        <textarea id="customPrompt" class="custom-prompt-input"
+          placeholder="Add custom instructions for the AI analyst..." rows="3" disabled></textarea>
+        <p class="setting-hint">Available for Pro Plus and Agency tiers. Customize the analysis focus.</p>
+      </div>
+    </section>
+
+    <section class="controls">
+      <button id="analyzeBtn" class="primary-btn" aria-label="Analyze current page for money traps">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Analyze this page
+      </button>
+
+      <!-- Progress Bar (New) -->
+      <div id="progressContainer" class="progress-container" hidden>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div id="progressText" class="progress-text">Analyzing...</div>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- Risk Score Gauge -->
+    <section id="scoreSection" class="score-section" hidden>
+      <div class="score-gauge">
+        <svg viewBox="0 0 120 70" class="gauge-svg">
+          <path class="gauge-bg" d="M10,60 A50,50 0 0,1 110,60" fill="none" stroke="#e0e0e0" stroke-width="8"
+            stroke-linecap="round" />
+          <path id="gaugeArc" class="gauge-arc" d="M10,60 A50,50 0 0,1 110,60" fill="none" stroke="#27ae60"
+            stroke-width="8" stroke-linecap="round" stroke-dasharray="0 157" />
+        </svg>
+        <div class="score-value">
+          <span id="scoreNumber">0</span>
+          <span class="score-label">Risk Score</span>
+        </div>
+      </div>
+      <div id="riskBadge" class="risk-badge low">Low Risk</div>
+    </section>
+
+    <!-- Summary Section -->
+    <section id="summarySection" class="summary-section" hidden>
+      <div class="summary-box">
+        <h3>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          Summary
+        </h3>
+        <p id="summaryText"></p>
+      </div>
+      <div class="explanation-box">
+        <h3>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          What this means for you
+        </h3>
+        <p id="whatItMeans"></p>
+      </div>
+      <div class="action-box">
+        <h3>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          What you should do
+        </h3>
+        <p id="whatToDo"></p>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="statsSection" class="stats-section" hidden>
+      <div class="stats-row">
+        <div class="stat critical"><span id="statCritical">0</span> Critical</div>
+        <div class="stat high"><span id="statHigh">0</span> High</div>
+        <div class="stat medium"><span id="statMedium">0</span> Medium</div>
+        <div class="stat low"><span id="statLow">0</span> Low</div>
+      </div>
+    </section>
+
+    <!-- Findings Section -->
+    <section id="findingsSection" class="findings-section" hidden>
+      <h2>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        Findings <span id="findingsCount"></span>
+      </h2>
+      <div id="findingsList" class="findings-list"></div>
+    </section>
+
+    <!-- Quick Actions Bar - Consolidated -->
+    <section id="quickActionsSection" class="quick-actions-section" hidden
+      aria-label="Quick actions for analysis result">
+      <div class="quick-actions-primary">
+        <button id="copyBtn" class="quick-action-btn" title="Copy analysis summary to clipboard"
+          aria-label="Copy analysis summary to clipboard">
+          <svg class="quick-action-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span class="quick-action-label">Copy</span>
+        </button>
+        <button id="shareBtn" class="quick-action-btn" title="Share analysis report" aria-label="Share analysis report">
+          <svg class="quick-action-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          <span class="quick-action-label">Share</span>
+        </button>
+        <button id="exportBtn" class="quick-action-btn" title="Export analysis as PDF"
+          aria-label="Export analysis as PDF">
+          <svg class="quick-action-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+          </svg>
+          <span class="quick-action-label">Export</span>
+        </button>
+        <button id="addWatchlistBtn" class="quick-action-btn" title="Add this site to watchlist"
+          aria-label="Add this site to watchlist">
+          <svg class="quick-action-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="quick-action-label">Save</span>
+        </button>
+      </div>
+      <div class="quick-actions-secondary">
+        <button id="refreshBtn" class="quick-action-btn-sm" title="Re-analyze page without cache"
+          aria-label="Re-analyze page without cache">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+        <button id="flagBtn" class="quick-action-btn-sm" title="Report inaccurate analysis"
+          aria-label="Report inaccurate analysis">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+            <line x1="4" y1="22" x2="4" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Error display -->
+    <section id="error" class="error" hidden role="alert" aria-live="assertive"></section>
+
+    <!-- Recently Analyzed (shown when no active analysis) -->
+    <section id="recentSection" class="recent-section" hidden>
+      <h3 class="recent-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Recent Analyses
+      </h3>
+      <div id="recentList" class="recent-list"></div>
+    </section>
+
+    <!-- Cache indicator -->
+    <div id="cacheIndicator" class="cache-indicator" hidden>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        aria-hidden="true">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      Loaded from cache
+    </div>
+
+    <!-- What We Analyze - Moved to Footer -->
+    <footer>
+      <div class="footer-info">
+        <details class="transparency-details">
+          <summary class="transparency-summary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            What gets analyzed?
+          </summary>
+          <div class="transparency-content">
+            <p>We extract and analyze Terms of Service, Privacy Policy, billing clauses, and cancellation policies.</p>
+            <p class="privacy-note">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Text is sent to ShieldAi. PII can be redacted in settings.
+            </p>
+          </div>
+        </details>
+      </div>
+      <div class="footer-disclaimer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="9" y1="21" x2="9" y2="9"></line>
+        </svg>
+        <span>AI-powered analysis – results may vary</span>
+      </div>
+      <div class="footer-actions">
+        <!-- Populated by popup.js when authenticated -->
+        <div id="userSection" class="user-section footer-user-section" hidden></div>
+        <span id="pageType" class="page-type"></span>
+        <div class="footer-links">
+          <a href="#" id="subscriptionLink" class="footer-link">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Upgrade
+          </a>
+          <a href="#" id="accountSettingsLink" class="footer-link">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Account
+          </a>
+          <a href="#" id="feedbackLink" class="footer-link">Feedback</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <!-- END MAIN VIEW -->
+
+  <!-- Export Format Modal -->
+  <div id="exportModal" class="modal-overlay" hidden>
+    <div class="modal-content export-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Export Analysis</h3>
+        <button class="modal-close" id="exportModalClose" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="export-modal-subtitle">Choose your export format:</p>
+        <div class="export-format-options">
+          <button class="export-format-btn" id="exportMarkdown">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span class="export-format-name">Markdown</span>
+            <span class="export-format-desc">.md file for docs</span>
+          </button>
+          <button class="export-format-btn" id="exportJSON">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="8" y1="13" x2="16" y2="13"></line>
+            </svg>
+            <span class="export-format-name">JSON</span>
+            <span class="export-format-desc">Structured data</span>
+          </button>
+          <button class="export-format-btn" id="exportPDF">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <text x="8" y="17" font-size="6" fill="currentColor" stroke="none">PDF</text>
+            </svg>
+            <span class="export-format-name">PDF</span>
+            <span class="export-format-desc">Print-ready report</span>
+            <span class="export-format-lock" id="pdfLockBadge" hidden>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Starter+
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/theme.js"></script>
+  <script type="module" src="popup.js"></script>
+</body>
+
+</html>
