@@ -1952,7 +1952,7 @@ function setupButtonEffects() {
 // ===== ANALYSIS MODE & SETTINGS PANEL =====
 const MODE_TIER_MAP = {
   flash: 0,      // Free and above
-  standard: 1,   // Starter and above
+  standard: 0,   // Free and above (was Starter)
   deepdive: 3,   // Pro Plus and above
   neural: 4      // Agency only
 };
