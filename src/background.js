@@ -597,7 +597,7 @@ async function callAnalysisEdgeFunction({ url, text, title, maxChars = 20000, an
 
     if (!resp.ok) {
       const errorMsg = json.error || json.message || `Analysis failed (${resp.status})`;
-      console.error('[Background] Edge Function error:', errorMsg, json);
+      console.error('[Background] Edge Function error:', errorMsg, JSON.stringify(json));
       throw new Error(errorMsg);
     }
 

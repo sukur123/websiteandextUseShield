@@ -100,7 +100,10 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { url, text, title, maxChars = 20000, analysisMode = 'standard', customPrompt = '' } = await req.json()
+    let { url, text, title, maxChars = 20000, analysisMode = 'standard', customPrompt = '' } = await req.json()
+
+    // Normalize mode to lowercase
+    analysisMode = analysisMode.toLowerCase();
 
     console.log('[Edge Function] Request params:', {
       url,
