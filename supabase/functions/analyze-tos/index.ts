@@ -122,7 +122,7 @@ serve(async (req) => {
     // Allow Standard analysis for free users (uses gpt-4o-mini anyway, just restricted by scan limits)
     const modeTierMap = { flash: 0, standard: 0, deepdive: 3, neural: 4 }
     const userTierLevel = tierLevelMap[subscription.tier] || 0
-    const requiredTierLevel = modeTierMap[analysisMode] || 1
+    const requiredTierLevel = modeTierMap[analysisMode] !== undefined ? modeTierMap[analysisMode] : 1
 
     console.log('[Edge Function] Tier validation:', {
       subscriptionTier: subscription.tier,
