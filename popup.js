@@ -773,33 +773,49 @@ function showPaywall(usageInfo) {
   overlay.className = 'paywall-overlay';
   overlay.innerHTML = `
     <div class="paywall-modal">
-      <div class="paywall-icon" aria-hidden="true">${getUiIconSvg('lock')}</div>
-      <h2>Scan Limit Reached</h2>
-      <p class="paywall-message">
-        You've used all ${usageInfo.limit} ${periodLabel} scans on the <strong>${tierName}</strong> plan.
-      </p>
-      <p class="paywall-reset">Your scans reset on <strong>${usageInfo.resetDate || 'the next period'}</strong></p>
+      <div class="paywall-header-section">
+        <div class="paywall-icon-badge">
+          ${getUiIconSvg('lock')}
+        </div>
+        <h2>Scan Limit Reached</h2>
+        <p class="paywall-message">
+          You've used all ${usageInfo.limit} ${periodLabel} scans on the <strong>${tierName}</strong> plan.
+        </p>
+        <div class="paywall-reset-badge">
+          ${getUiIconSvg('refresh')}
+          <span>Your scans reset on <strong>${usageInfo.resetDate || 'the next period'}</strong></span>
+        </div>
+      </div>
       
-      <div class="paywall-upgrade">
+      <div class="paywall-upgrade-section">
         <h3>Upgrade for More Scans</h3>
-        <div class="upgrade-options">
-          <div class="upgrade-option" data-tier="starter">
-            <span class="upgrade-name">Starter</span>
-            <span class="upgrade-price">$9.99/mo</span>
-            <span class="upgrade-scans">15 scans</span>
+        <div class="upgrade-options-list">
+          <div class="upgrade-option-card" data-tier="starter">
+            <div class="option-info">
+              <span class="option-name">Starter</span>
+              <span class="option-scans">15 scans</span>
+            </div>
+            <span class="option-price">$9.99/mo</span>
           </div>
-          <div class="upgrade-option recommended" data-tier="pro">
-            <span class="upgrade-badge">Most Popular</span>
-            <span class="upgrade-name">Pro</span>
-            <span class="upgrade-price">$29/mo</span>
-            <span class="upgrade-scans">80 scans</span>
+          
+          <div class="upgrade-option-card popular" data-tier="pro">
+            <div class="popular-tag">Most Popular</div>
+            <div class="option-info">
+              <span class="option-name">Pro</span>
+              <span class="option-scans">80 scans</span>
+            </div>
+            <span class="option-price">$29/mo</span>
           </div>
-          <div class="upgrade-option" data-tier="pro_plus">
-            <span class="upgrade-name">Pro Plus</span>
-            <span class="upgrade-price">$60/mo</span>
-            <span class="upgrade-scans">200 scans</span>
+          
+          <div class="upgrade-option-card" data-tier="pro_plus">
+            <div class="option-info">
+              <span class="option-name">Pro Plus</span>
+              <span class="option-scans">200 scans</span>
+            </div>
+            <span class="option-price">$60/mo</span>
           </div>
         </div>
+        
         <button class="paywall-btn upgrade" id="paywallUpgradeBtn">View All Plans</button>
       </div>
       
@@ -826,7 +842,7 @@ function showPaywall(usageInfo) {
   });
 
   // Click on upgrade options
-  overlay.querySelectorAll('.upgrade-option').forEach(function (opt) {
+  overlay.querySelectorAll('.upgrade-option-card').forEach(function (opt) {
     opt.addEventListener('click', function () {
       const tier = this.dataset.tier;
       chrome.tabs.create({ url: 'subscription.html?tier=' + tier });
