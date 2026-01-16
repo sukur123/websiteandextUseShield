@@ -226,6 +226,46 @@ const supabase = {
       }
 
       return { data, error: null };
+    },
+
+    async getProfile(userId) {
+      const session = await getStoredSession();
+      if (!session?.access_token) return { data: null, error: 'Not authenticated' };
+
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=*`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_ANON_KEY
+        }
+      });
+
+      if (!response.ok) {
+        return { data: null, error: 'Failed to fetch profile' };
+      }
+
+      const data = await response.json();
+      return { data: data[0] || null, error: null };
+    },
+
+    async updateProfileData(userId, updates) {
+      const session = await getStoredSession();
+      if (!session?.access_token) return { data: null, error: 'Not authenticated' };
+
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_ANON_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (!response.ok) {
+        return { error: 'Failed to update profile' };
+      }
+      return { error: null };
     }
   }
 };
@@ -587,6 +627,31 @@ export function getSupabase() {
 }
 
 /**
+ * Fetch profile directly from database (bypassing local cache)
+ * @returns {Promise<{data: Object|null, error: string|null}>}
+ */
+export async function fetchProfile() {
+  const user = await getCurrentUser();
+  if (!user || !user.id) return { data: null, error: 'No user' };
+
+  const client = getSupabaseClient();
+  return client.auth.getProfile(user.id);
+}
+
+/**
+ * Update profile in database
+ * @param {Object} updates 
+ * @returns {Promise<{error: string|null}>}
+ */
+export async function updateProfileDB(updates) {
+  const user = await getCurrentUser();
+  if (!user || !user.id) return { error: 'No user' };
+
+  const client = getSupabaseClient();
+  return client.auth.updateProfileData(user.id, updates);
+}
+
+/**
  * Refresh user data from Supabase
  * @returns {Promise<{success: boolean, user?: Object, error?: string}>}
  */
@@ -598,9 +663,11 @@ export async function refreshUserData() {
     const { data: { session }, error } = await supabase.auth.getSession();
 
     if (error || !session) {
-      throw new Error('Not authenticated');
+      await chrome.storage.local.remove(['mta_user']);
+      return { success: false, error: 'No session' };
     }
 
+    // Get user metadata (name)
     const userName = session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
 
     const user = {
@@ -610,13 +677,10 @@ export async function refreshUserData() {
       emailVerified: session.user.email_confirmed_at ? true : false
     };
 
-    // Update local storage
     await chrome.storage.local.set({ mta_user: user });
 
-    return {
-      success: true,
-      user: user
-    };
+    return { success: true, user };
+
   } catch (error) {
     console.error('Refresh user data error:', error);
     return {
